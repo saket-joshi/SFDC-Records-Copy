@@ -1,0 +1,21 @@
+{
+    "manifest_version": 2,
+
+    "name": "SFDC Record Copy",
+    "description": "Easily copy custom setting/object records from one SFDC instance to another",
+    "version": "1.0",
+    "author": "https://github.com/saket-joshi",
+
+    "browser_action": {
+        "default_icon": "icon.png",
+        "default_popup": "popup.html"
+    },
+
+    "content_scripts": [{
+        "matches": [ "*://*.salesforce.com/*", "*://*.force.com/*" ],
+        "js": [ "jquery-1.12.4.min.js", "factory.js" ],
+        "run_at": "document_end"
+    }],
+
+    "permissions": [ "cookies", "*://*.salesforce.com/*", "*://*.force.com/*", "tabs" ]
+}
