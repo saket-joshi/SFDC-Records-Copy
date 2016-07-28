@@ -48,16 +48,14 @@ var getSalesforceInstanceUrl = function (url) {
     if (!getIfSalesforceUrl(url))
         return;
 
-    var splitUrl;
-    var protocol = url.split("/")[0];
+    var splitUrl = url.split("/");
+    var protocol = splitUrl[0];
 
-    if (url.indexOf("https://") != -1)
-        splitUrl = url.split("https://")[1];
-    
-    if (url.indexOf("http://") != -1)
-        splitUrl = url.split("http://")[1];
+    if (splitUrl[2].indexOf(".salesforce.com") != -1)
+        return protocol + "//" + splitUrl[2];
 
-    return protocol + "//" +   splitUrl.substring(0, splitUrl.indexOf("/"));
+    if (splitUrl[2].indexOf(".force.com") != -1)
+        return protocol + "//" + splitUrl[2].split(".")[1] + ".salesforce.com";
 }
 
 /**
