@@ -1,3 +1,10 @@
+/**
+* Main entry point for the extension
+*
+* @author       Saket Joshi (https://github.com/saket-joshi)
+* @version      1.0
+*/
+
 "use strict";
 
 $(function() {
@@ -21,7 +28,12 @@ $(function() {
             "value",
             null,
             function (sId) {
-                console.log(sId);
+                getAllObjectInformation(
+                    getSalesforceInstanceUrl(url),
+                    sId,
+                    function (data) { console.log( data ); },
+                    function (err) { console.log(err) }
+                );
             },
             function (err)
             {

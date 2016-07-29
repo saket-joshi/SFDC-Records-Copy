@@ -12,16 +12,14 @@
 * Method to show the processing loader
 */
 var showProcessing = function () {
-    // @TODO: Replace with logic for showing the loader screen
-    console.log(".... showProcessing");
+    $("#loader").show();
 }
 
 /**
 * Method to hide the processing loader
 */
 var hideProcessing = function () {
-    // @TODO: Replace with logic for hiding the loader screen
-    console.log(".... hideProcessing");
+    $("#loader").hide();
 }
 
 /**
