@@ -64,6 +64,12 @@ var getSalesforceInstanceUrl = function (url) {
 */
 var getCurrentRecordId = function (url) {
     var instanceUrl = getSalesforceInstanceUrl(url);
+    
+    if (url.indexOf("#") != -1) {
+        var completeUrl = url.substring(0, url.indexOf("#"));
+        return completeUrl.split(instanceUrl + "/")[1];
+    }
+
     return url.split(instanceUrl + "/")[1];
 }
 
