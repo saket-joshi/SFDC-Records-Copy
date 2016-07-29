@@ -3,29 +3,75 @@
 * within the browser tabs as well as with Salesforce
 * 
 * @author       Saket Joshi (https://github.com/saket-joshi)
-* @version      1.0
+* @version      1.1
 */
 
 "use strict";
 
 /**
-* Method to get the URL for the current tab
-* @param        {function}      callback      {Callback function executed after getting the tab URL}
+* Method to show the processing loader
 */
-var getCurrentTabUrl = function (callback) {
-    if (!callback && typeof callback != "function")
-        return;
+var showProcessing = function () {
+    // @TODO: Replace with logic for showing the loader screen
+    console.log(".... showProcessing");
+}
 
+/**
+* Method to hide the processing loader
+*/
+var hideProcessing = function () {
+    // @TODO: Replace with logic for hiding the loader screen
+    console.log(".... hideProcessing");
+}
+
+/**
+* Method to get the URL for the current tab
+* @param        {function}      deferred  {Deferred object from previous async}
+* @param        {function}      done      {Success callback after getting URL}
+* @param        {function}      fail      {Failure callback}
+*/
+var getCurrentTabUrl = function (deferred, done, fail) {
     var tabProperties = {
         active: true,
         currentWindow: true
     };
 
-    chrome.tabs.query(tabProperties, function (tabs) {
-        if (tabs.length > 1)
-            return;
-        callback(tabs[0].url);
+    // Sanity check
+    deferred = deferred || new $.Deferred(showProcessing());
+    done = done || function () {};
+    fail = fail || function () {};
+
+    // Callback for successful URL fetch
+    deferred.done(function (tab) {
+        done(tab.url);
     });
+
+    // Callback for failed URL fetch
+    deferred.fail(function (err) {
+        fail(err);
+    })
+
+    // Hide the processing window
+    deferred.always(function () {
+        hideProcessing();
+    });
+
+    try {
+        chrome.tabs.query(tabProperties, function (tabs) {
+            var response = [];
+            if (tabs && tabs.length > 0)  {
+                response = tabs[0];
+            }
+
+            // Got the URLs, resolve the promise
+            deferred.resolve(response);
+        });
+    } catch (exception) {
+        // Oops! Reject the promise
+        deferred.reject(exception)
+    }
+
+    return deferred.promise();
 }
 
 /**
@@ -78,27 +124,47 @@ var getCurrentRecordId = function (url) {
 * @param        {string}        url         {URL for which the cookie needs to be retrieved}
 * @param        {string}        name        {Name of the cookie}
 * @param        {string}        prop        {Property to get}
-* @param        {function}      callback    {Callback function that is executed after cookie is found}
+* @param        {function}      deferred    {Deferred object from previous async}
+* @param        {function}      done        {Success callback after getting URL}
+* @param        {function}      fail        {Failure callback}
 */
-var getCookieValue = function (url, name, prop, callback) {
-    if (!url)
-        return;
-
-    if (!name)
-        return;
-
-    if (!callback && typeof callback != "function")
-        return;
-
+var getCookieValue = function (url, name, prop, deferred, done, fail) {
     var cookieProperties = {
         url: url,
         name: name
     };
 
-    chrome.cookies.get(cookieProperties, function(cookie) {
-        if (!cookie && !cookie[prop])
-            return;
+    // Sanity check
+    // @TODO: Need to check if this param is required...
+    // ...if the function can be called from another async internally
+    // ...instead of calling it on the resolution of previous function
+    deferred = deferred || new $.Deferred(showProcessing());
 
-        callback(cookie[prop]);
+    done = done || function () {};
+    fail = fail || function () {};
+    
+    deferred.done(function (value) {
+        done(value);
     });
+
+    deferred.fail(function (err) {
+        fail(err);
+    });
+
+    deferred.always(function () {
+        hideProcessing();
+    });
+
+    try {
+        chrome.cookies.get(cookieProperties, function(cookie) {
+            if (cookie) {
+                deferred.resolve(cookie[prop]);
+            }
+            deferred.reject(null);
+        });
+    } catch (exception) {
+        deferred.reject(exception);
+    }
+
+    return deferred.promise();
 }
