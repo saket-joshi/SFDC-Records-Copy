@@ -1,15 +1,32 @@
 "use strict";
 
 $(function() {
-    getCurrentTabUrl(function (url) {
-        console.log(getCurrentRecordId(url), "asdada");
-        // getCookieValue(
-        //     getSalesforceInstanceUrl(url),
-        //     "sid",
-        //     "value",
-        //     function (value) {
-        //         console.log(value);
-        //     }
-        // );
-    });
+    var url;
+
+    var getUrl = getCurrentTabUrl(
+        null,
+        function (tabUrl) {
+            url = tabUrl;
+            getCookie();
+        },
+        function (err) {
+            console.error(err);
+        }
+    );
+    
+    var getCookie = function () {
+            getCookieValue (
+            url,
+            "sid",
+            "value",
+            null,
+            function (sId) {
+                console.log(sId);
+            },
+            function (err)
+            {
+                console.error(err);
+            }
+        );
+    }
 });
