@@ -57,3 +57,61 @@ var getAllObjectInformation = function (instanceUrl, sessionId, deferred, done, 
         hideProcessing();
     });
 }
+
+/**
+* Method to get all the fields data for a specific object
+*
+* @param        {object}        describeInfo    {All sObjects information}
+* @param        {string}        instanceUrl     {URL Salesforce instance}
+* @param        {string}        sessionId       {Session ID for the Salesforce instance}
+* @param        {string}        recordId        {Record ID for the record}
+* @param        {function}      done            {Success callback after getting URL}
+* @param        {function}      fail            {Failure callback}
+*/
+var getObjectData = function (describeInfo, instanceUrl, sessionId, recordId, done, fail) {
+    showProcessing();
+
+    done = done || function () {};
+    fail = fail || function () {};
+
+    var objectDescribe = describeInfo[getKeyPrefix(recordId)];
+
+    if (!objectDescribe) {
+        fail("Object information not available");
+        console.error("Describe: ", objectDescribe, "recordId: ", recordId);
+        return;
+    }
+
+    if (objectDescribe.isCustomSetting) {
+        return getCustomSettingInfo(describeInfo, instanceUrl, sessionId, recordId, done, fail);
+    }
+
+    $.ajax({
+        type: "GET",
+        url: instanceUrl + objectDescribe.recordUrl.replace("{ID}", recordId),
+        headers: {
+            "Authorization": "OAuth " + sessionId
+        }
+    })
+    .done(function (data) {
+        done(data);
+    })
+    .fail(function(err) {
+        fail(err);
+    })
+    .always(function() {
+        hideProcessing();
+    });    
+}
+
+/**
+* Method to get the 3-key prefix for the objects
+*
+* @param        {string}        recordId    {Record ID from which the prefix is to be calculated}
+*/
+var getKeyPrefix = function (recordId) {
+    if (!recordId)
+        return;
+
+    return recordId.substring(0,3);
+}
