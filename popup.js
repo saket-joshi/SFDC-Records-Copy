@@ -31,8 +31,22 @@ $(function() {
                 getAllObjectInformation(
                     getSalesforceInstanceUrl(url),
                     sId,
-                    function (data) { console.log( data ); },
-                    function (err) { console.log(err) }
+                    null,
+                    function (data) {
+                        getObjectData(
+                            data,
+                            getSalesforceInstanceUrl(url),
+                            sId,
+                            getCurrentRecordId(url),
+                            function (data) {
+                                console.log(data);
+                            },
+                            function (err) {
+                                console.error(err);
+                            }
+                        );
+                    },
+                    function (err) { console.error(err) }
                 );
             },
             function (err)

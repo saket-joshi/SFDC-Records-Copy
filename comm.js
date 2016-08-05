@@ -2,7 +2,7 @@
 * JS wrapper for performing RESTful callouts to Salesforce
 *
 * @author       Saket Joshi (https://github.com/saket-joshi)
-* @version      1.0
+* @version      1.1
 */
 
 "use strict";
@@ -101,17 +101,52 @@ var getObjectData = function (describeInfo, instanceUrl, sessionId, recordId, do
     })
     .always(function() {
         hideProcessing();
-    });    
+    });
 }
 
 /**
-* Method to get the 3-key prefix for the objects
+* Method to insert the record in Salesforce using tooling API
+* Returns the Id of the record on successful insertion
+* @NOTE This method should not be used to insert custom setting records
 *
-* @param        {string}        recordId    {Record ID from which the prefix is to be calculated}
+* @param        {object}        describeInfo    {All sObjects information}
+* @param        {object}        recordToInsert  {Record to insert}
+* @param        {string}        instanceUrl     {URL Salesforce instance}
+* @param        {string}        sessionId       {Session ID for the Salesforce instance}
+* @param        {function}      done            {Success callback after getting URL}
+* @param        {function}      fail            {Failure callback}
 */
-var getKeyPrefix = function (recordId) {
-    if (!recordId)
-        return;
+var insertObjectRecord = function (describeInfo, recordToInsert, instanceUrl, sessionId, done, fail) {
+    showProcessing();
 
-    return recordId.substring(0,3);
+    done = done || function () {};
+    fail = fail || function () {};
+
+    var objectDescribe = describeInfo[getKeyPrefix(recordId)];
+
+    if (!objectDescribe) {
+        fail("Object information not available");
+        console.error("Describe: ", objectDescribe, "recordId: ", recordId);
+        return;
+    }
+
+    $.ajax({
+        type: "POST",
+        url: instanceUrl + "/services/data/" + SF_API_VERSION + "/sobjects" + objectDescribe.name,
+        headers: {
+            "Authorization": "OAuth " + sessionId
+        },
+        data: recordToInsert
+    })
+    .done(function (data) {
+        if (!data.Id)
+            return fail(data);
+        done(data);
+    })
+    .fail(function(err) {
+        fail(err);
+    })
+    .always(function() {
+        hideProcessing();
+    });
 }

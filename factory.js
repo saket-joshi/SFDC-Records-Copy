@@ -1,26 +1,12 @@
 /**
 * JS factory that provides means of communication
-* within the browser tabs as well as with Salesforce
+* within the browser tabs
 * 
 * @author       Saket Joshi (https://github.com/saket-joshi)
-* @version      1.1
+* @version      1.2
 */
 
 "use strict";
-
-/**
-* Method to show the processing loader
-*/
-var showProcessing = function () {
-    $("#loader").show();
-}
-
-/**
-* Method to hide the processing loader
-*/
-var hideProcessing = function () {
-    $("#loader").hide();
-}
 
 /**
 * Method to get the URL for the current tab
