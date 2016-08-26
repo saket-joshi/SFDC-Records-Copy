@@ -7,7 +7,7 @@
 
 "use strict";
 
-$(function() {
+/*$(function() {
     var url;
 
     var getUrl = getCurrentTabUrl(
@@ -28,6 +28,7 @@ $(function() {
             "value",
             null,
             function (sId) {
+                console.log(sId);
                 getAllObjectInformation(
                     getSalesforceInstanceUrl(url),
                     sId,
@@ -55,4 +56,4 @@ $(function() {
             }
         );
     }
-});
+});*/

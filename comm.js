@@ -48,6 +48,7 @@ var getAllObjectInformation = function (instanceUrl, sessionId, deferred, done, 
             };
         }
 
+        console.log(response);
         done(response);
     })
     .fail(function (err) {
@@ -105,8 +106,7 @@ var getObjectData = function (describeInfo, instanceUrl, sessionId, recordId, do
 }
 
 /**
-* Method to insert the record in Salesforce using tooling API
-* Returns the Id of the record on successful insertion
+* Method for inserting the object in SF
 * @NOTE This method should not be used to insert custom setting records
 *
 * @param        {object}        describeInfo    {All sObjects information}
@@ -130,13 +130,68 @@ var insertObjectRecord = function (describeInfo, recordToInsert, instanceUrl, se
         return;
     }
 
+    // First get the object describe info
+    // ... then filter out all the non-writable fields
+    // ... then insert the record
     $.ajax({
-        type: "POST",
-        url: instanceUrl + "/services/data/" + SF_API_VERSION + "/sobjects" + objectDescribe.name,
+        type: "GET",
+        url: instanceUrl + "/services/data/" + SF_API_VERSION + "/sobjects/" + objectDescribe.name + "/describe",
         headers: {
             "Authorization": "OAuth " + sessionId
+        }
+    })
+    .done(function (data) {
+        if (!data.fields || data.fields.length == 0)
+            return fail("Unable to get object describe information");
+        recordToInsert = cleanupObjectInformation(recordToInsert, data.fields);
+        return doInsertCallout(objectDescribe, recordToInsert, instanceUrl, sessionId, done, fail);
+    })
+    .fail(function (err) {
+        fail(err);
+    })
+    .always(function () {
+        hideProcessing()
+    });
+}
+
+/**
+* Method to get the cleaned object information
+* Clears out all the non-writeable fields
+*
+* @param        {object}        recordToInsert      {Record to be cleaned}
+* @param        {object}        fieldInfo           {Describe field info}
+*/
+var cleanupObjectInformation = function (recordToInsert, fieldInfo) {
+    for (var fIndex in fieldInfo) {
+        var field = fieldInfo[fIndex];
+        if (!field.updateable || !field.createable) {
+            delete recordToInsert[field.name];
+        }
+    }
+    return recordToInsert;
+}
+
+/**
+* Method to insert the record in Salesforce using tooling API
+* @NOTE This method should not be used to insert custom setting records
+*
+* @param        {object}        objectDescribe  {Object describe information}
+* @param        {object}        recordToInsert  {Record to insert}
+* @param        {string}        instanceUrl     {URL Salesforce instance}
+* @param        {string}        sessionId       {Session ID for the Salesforce instance}
+* @param        {function}      done            {Success callback after getting URL}
+* @param        {function}      fail            {Failure callback}
+*/
+var doInsertCallout = function (objectDescribe, recordToInsert, instanceUrl, sessionId, done, fail) {
+    $.ajax({
+        type: "POST",
+        url: instanceUrl + "/services/data/" + SF_API_VERSION + "/sobjects/" + objectDescribe.name,
+        headers: {
+            "Authorization": "OAuth " + sessionId,
+            "Content-Type": "application/json; charset=UTF-8",
+            "Accept": "application/json"
         },
-        data: recordToInsert
+        data: JSON.stringify(recordToInsert)
     })
     .done(function (data) {
         if (!data.Id)
