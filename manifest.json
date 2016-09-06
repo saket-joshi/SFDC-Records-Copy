@@ -13,8 +13,8 @@
 
     "content_scripts": [{
         "matches": [ "*://*.salesforce.com/*", "*://*.force.com/*" ],
-        "js": [ "jquery-1.12.4.min.js", "factory.js", "bootstrap.min.js" ],
-        "css": [ "popup.css", "bootstrap.min.css" ],
+        "js": [ ],
+        "css": [ "popup.css" ],
         "run_at": "document_end"
     }],
 

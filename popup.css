@@ -1,9 +1,17 @@
-body {
-    width: 785px;
-    height: 600px;
-}
-
 #loader img {
     height: 24px;
     width: 24px;
+}
+
+#body-panel {
+    height: 150px;
+    width: 400px;
+}
+
+#body-panel #btn-container {
+    text-align: center;
+}
+
+.btn-choose {
+    width: 175px;
 }

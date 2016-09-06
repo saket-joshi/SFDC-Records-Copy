@@ -8,6 +8,16 @@
 "use strict";
 
 /**
+* Message types wrapper
+*/
+var MESSAGE_TYPE = {
+    SUCCESS: "alert-success",
+    INFO: "alert-info",
+    WARNING: "alert-warning",
+    ERROR: "alert-danger"
+};
+
+/**
 * Method to show the processing loader
 */
 var showProcessing = function () {
@@ -63,4 +73,36 @@ var getClonedRecord = function (recordToClone, fieldsToClone, cloneAllFields) {
     delete returnObj["attributes"];
 
     return returnObj;
+}
+
+/**
+* Method to show the alert on the page
+* @param        {string}        type 
+* @param        {object}        message
+*/
+var showMessage = function (type, message) {
+    $("#message-panel").find(".alert").text(message).show().addClass(type);
+}
+
+/**
+* Message to hide the alert box
+*/
+var hideMessage = function () {
+    $("#message-panel").find(".alert").text("").hide();
+}
+
+/**
+* Method to show a particular element
+* @param        {string}        selector
+*/
+var showElement = function (selector) {
+    return $(selector).show();
+}
+
+/**
+* Method to hide a particular element
+* @param        {string}        selector
+*/
+var hideElement = function (selector) {
+    return $(selector).hide();
 }

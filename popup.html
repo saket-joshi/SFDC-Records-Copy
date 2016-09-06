@@ -5,21 +5,49 @@
         <link rel="stylesheet" type="text/css" href="popup.css">
         <link rel="stylesheet" type="text/css" href="bootstrap.min.css">
         <script src="jquery-1.12.4.min.js"></script>
+        <script src="bootstrap.min.js"></script>
         <script src="utils.js"></script>
         <script src="factory.js"></script>
         <script src="comm.js"></script>
+        <script src="handlers.js"></script>
         <script src="popup.js"></script>
-        <script src="bootstrap.min.js"></script>
     </head>
     <body>
-        <!-- <div id="loader">
-            <img src="loader.gif"></img>
-        </div> -->
+        <div id="container"
+             class="app-container">
+            <div id="loader">
+                <div class="progress">
+                    <div class="progress-bar progress-bar-success progress-bar-striped active"
+                         style="width: 100%">
+                    </div>
+                </div>
+            </div>
 
-        <div class="page-header">
-            <h1>SFDC Records Copy
-                <br/><small>A lightweight tool to copy records from one SFDC org to another...</small>
-            </h1>
+            <div id="message-panel">
+                <div class="alert"
+                     role="alert">
+                </div>
+            </div>
+
+            <div id="body-panel"
+                 style="display: none;">
+                <div id="btn-container">
+                    <button id="btn-select-source-record"
+                            class="btn btn-default btn-choose"
+                            data-event="click"
+                            data-listener="selectSourceRecord"
+                            disabled>
+                            Select source record
+                    </button>
+                    <button id="btn-select-destn-record"
+                            class="btn btn-default btn-choose"
+                            data-event="click"
+                            data-listener="cloneDestination"
+                            disabled>
+                            Choose as destination
+                    </button>
+                </div>
+            </div>
         </div>
     </body>
 </html>
