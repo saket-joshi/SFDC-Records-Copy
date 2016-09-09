@@ -48,7 +48,6 @@ var getAllObjectInformation = function (instanceUrl, sessionId, deferred, done, 
             };
         }
 
-        console.log(response);
         done(response);
     })
     .fail(function (err) {

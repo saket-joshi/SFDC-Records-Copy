@@ -34,14 +34,19 @@ var initializeEventHandlers = function () {
 */
 $(function() {
     var url;
+    var currentInstanceUrl;
+    var describeInfo;
+
     // First check if this is a valid salesforce tab to clone the record
     (function() {
-        getCurrentTabUrl(null,
+        getCurrentTabUrl(
+            null,
             function (tabUrl) {
                 if (getIfSalesforceUrl(tabUrl)) {
                     // This is a Salesforce.com tab
                     // ...so display the main panel
                     url = tabUrl;
+                    currentInstanceUrl = getSalesforceInstanceUrl(tabUrl);
                     showElement("#body-panel");
                 } else {
                     showMessage(MESSAGE_TYPE.ERROR, "Current tab is not a valid Salesforce.com tab");
@@ -50,8 +55,35 @@ $(function() {
             function (err) {
                 showMessage(MESSAGE_TYPE.ERROR, err.message);
             }
-        ).done(function (data) {
-            getCookieValue(data.url, "sid", "value", null, function (data) {console.log(data)}, null)});
+        )
+        .done(function (data) {
+            // Once we get the Salesforce tab, get the session ID first
+            getCookieValue(
+                data.url,
+                "sid",
+                "value",
+                null,
+                null,
+                function (err) {
+                    showMessage(MESSAGE_TYPE.ERROR, err.message);
+                }
+            ).done(function (sessionId) {
+                // After the session ID, get the describe info for all objects
+                getAllObjectInformation(
+                    currentInstanceUrl,
+                    sessionId,
+                    null,
+                    function (objectInfo) {
+                        describeInfo = objectInfo;
+                    },
+                    function (err) {
+                        showMessage(MESSAGE_TYPE.ERROR, err.message);
+                    }
+                )
+            })
+
+            // Now we are done with the routine work...
+        });
     })();
 });
 
