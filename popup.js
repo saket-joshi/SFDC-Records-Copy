@@ -8,6 +8,15 @@
 "use strict";
 
 /**
+* Declaring these variables in a global context so that they can be accessible
+* from other files as well
+*/
+var currentTabUrl;
+var currentInstanceUrl;
+var currentSessionId;
+var describeInfo;
+
+/**
 * Method to initialize the event handlers
 */
 var initializeEventHandlers = function () {
@@ -33,10 +42,6 @@ var initializeEventHandlers = function () {
 * This is the main logic that needs to be executed on opening the extension
 */
 $(function() {
-    var url;
-    var currentInstanceUrl;
-    var describeInfo;
-
     // First check if this is a valid salesforce tab to clone the record
     (function() {
         getCurrentTabUrl(
@@ -45,11 +50,11 @@ $(function() {
                 if (getIfSalesforceUrl(tabUrl)) {
                     // This is a Salesforce.com tab
                     // ...so display the main panel
-                    url = tabUrl;
+                    currentTabUrl = tabUrl;
                     currentInstanceUrl = getSalesforceInstanceUrl(tabUrl);
                     showElement("#body-panel");
                 } else {
-                    showMessage(MESSAGE_TYPE.ERROR, "Current tab is not a valid Salesforce.com tab");
+                    showMessage(MESSAGE_TYPE.INFO, "Current tab is not a valid Salesforce.com tab");
                 }
             },
             function (err) {
@@ -68,6 +73,7 @@ $(function() {
                     showMessage(MESSAGE_TYPE.ERROR, err.message);
                 }
             ).done(function (sessionId) {
+                currentSessionId = sessionId;
                 // After the session ID, get the describe info for all objects
                 getAllObjectInformation(
                     currentInstanceUrl,
@@ -81,8 +87,11 @@ $(function() {
                     }
                 )
             })
-
-            // Now we are done with the routine work...
+            .then(function() {
+                // Now we are done with the routine work
+                // So enable all the buttons and their handlers
+                initializeEventHandlers();
+            })
         });
     })();
 });

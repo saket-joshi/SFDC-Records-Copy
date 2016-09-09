@@ -20,14 +20,14 @@ var MESSAGE_TYPE = {
 /**
 * Method to show the processing loader
 */
-var showProcessing = function () {
+function showProcessing() {
     $("#loader").show();
 }
 
 /**
 * Method to hide the processing loader
 */
-var hideProcessing = function () {
+function hideProcessing() {
     $("#loader").hide();
 }
 
@@ -36,7 +36,7 @@ var hideProcessing = function () {
 *
 * @param        {string}        recordId    {Record ID from which the prefix is to be calculated}
 */
-var getKeyPrefix = function (recordId) {
+function getKeyPrefix(recordId) {
     if (!recordId)
         return;
 
@@ -52,7 +52,7 @@ var getKeyPrefix = function (recordId) {
 * @param        {array}         fieldsToClone       {Optional; Array of field API names to be cloned}
 * @param        {boolean}       cloneAllFields      {Optional; Boolean to specify whether to clone all the fields}
 */
-var getClonedRecord = function (recordToClone, fieldsToClone, cloneAllFields) {
+function getClonedRecord(recordToClone, fieldsToClone, cloneAllFields) {
     if (fieldsToClone == null && cloneAllFields == null)
         return;
 
@@ -80,14 +80,14 @@ var getClonedRecord = function (recordToClone, fieldsToClone, cloneAllFields) {
 * @param        {string}        type 
 * @param        {object}        message
 */
-var showMessage = function (type, message) {
+function showMessage(type, message) {
     $("#message-panel").find(".alert").text(message).show().addClass(type);
 }
 
 /**
 * Message to hide the alert box
 */
-var hideMessage = function () {
+function hideMessage() {
     $("#message-panel").find(".alert").text("").hide();
 }
 
@@ -95,7 +95,7 @@ var hideMessage = function () {
 * Method to show a particular element
 * @param        {string}        selector
 */
-var showElement = function (selector) {
+function showElement(selector) {
     return $(selector).show();
 }
 
@@ -103,6 +103,6 @@ var showElement = function (selector) {
 * Method to hide a particular element
 * @param        {string}        selector
 */
-var hideElement = function (selector) {
+function hideElement(selector) {
     return $(selector).hide();
 }

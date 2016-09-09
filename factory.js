@@ -14,7 +14,7 @@
 * @param        {function}      done      {Success callback after getting URL}
 * @param        {function}      fail      {Failure callback}
 */
-var getCurrentTabUrl = function (deferred, done, fail) {
+function getCurrentTabUrl(deferred, done, fail) {
     var tabProperties = {
         active: true,
         currentWindow: true
@@ -62,7 +62,7 @@ var getCurrentTabUrl = function (deferred, done, fail) {
 * Method to get whether the current tab URL is a Salesforce instance URL
 * @param        {string}        url         {URL to be checked}
 */
-var getIfSalesforceUrl = function (url) {
+function getIfSalesforceUrl(url) {
     if (!url)
         return false;
 
@@ -74,7 +74,7 @@ var getIfSalesforceUrl = function (url) {
 * Method to get the full salesforce instance URL
 * @param        {string}        url         {Salesforce page URL}
 */
-var getSalesforceInstanceUrl = function (url) {
+function getSalesforceInstanceUrl(url) {
     if (!getIfSalesforceUrl(url))
         return;
 
@@ -92,7 +92,7 @@ var getSalesforceInstanceUrl = function (url) {
 * Method to get the ID of the record from the URL provided
 * @param        {string}        url         {Salesforce page URL}
 */
-var getCurrentRecordId = function (url) {
+function getCurrentRecordId(url) {
     var instanceUrl = getSalesforceInstanceUrl(url);
     
     if (url.indexOf("#") != -1) {
@@ -112,7 +112,7 @@ var getCurrentRecordId = function (url) {
 * @param        {function}      done        {Success callback after getting URL}
 * @param        {function}      fail        {Failure callback}
 */
-var getCookieValue = function (url, name, prop, deferred, done, fail) {
+function getCookieValue(url, name, prop, deferred, done, fail) {
     var cookieProperties = {
         url: url,
         name: name

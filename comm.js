@@ -19,7 +19,7 @@ var SF_API_VERSION = "v35.0";
 * @param        {function}      done        {Success callback after getting URL}
 * @param        {function}      fail        {Failure callback}
 */
-var getAllObjectInformation = function (instanceUrl, sessionId, deferred, done, fail) {
+function getAllObjectInformation(instanceUrl, sessionId, deferred, done, fail) {
     showProcessing();
     
     done = done || function () {};
@@ -68,7 +68,7 @@ var getAllObjectInformation = function (instanceUrl, sessionId, deferred, done, 
 * @param        {function}      done            {Success callback after getting URL}
 * @param        {function}      fail            {Failure callback}
 */
-var getObjectData = function (describeInfo, instanceUrl, sessionId, recordId, done, fail) {
+function getObjectData(describeInfo, instanceUrl, sessionId, recordId, done, fail) {
     showProcessing();
 
     done = done || function () {};
@@ -78,7 +78,6 @@ var getObjectData = function (describeInfo, instanceUrl, sessionId, recordId, do
 
     if (!objectDescribe) {
         fail("Object information not available");
-        console.error("Describe: ", objectDescribe, "recordId: ", recordId);
         return;
     }
 
@@ -105,23 +104,21 @@ var getObjectData = function (describeInfo, instanceUrl, sessionId, recordId, do
 }
 
 /**
-* Method for inserting the object in SF
-* @NOTE This method should not be used to insert custom setting records
+* Method to get the cleaned record information
+* Record once passed through this process can be directly taken for insertion
 *
-* @param        {object}        describeInfo    {All sObjects information}
+* @param        {object}        objectDescribe  {sObject information}
 * @param        {object}        recordToInsert  {Record to insert}
 * @param        {string}        instanceUrl     {URL Salesforce instance}
 * @param        {string}        sessionId       {Session ID for the Salesforce instance}
 * @param        {function}      done            {Success callback after getting URL}
 * @param        {function}      fail            {Failure callback}
 */
-var insertObjectRecord = function (describeInfo, recordToInsert, instanceUrl, sessionId, done, fail) {
+function getCleanRecord(objectDescribe, recordToInsert, instanceUrl, sessionId, done, fail) {
     showProcessing();
 
     done = done || function () {};
     fail = fail || function () {};
-
-    var objectDescribe = describeInfo[getKeyPrefix(recordId)];
 
     if (!objectDescribe) {
         fail("Object information not available");
@@ -143,13 +140,13 @@ var insertObjectRecord = function (describeInfo, recordToInsert, instanceUrl, se
         if (!data.fields || data.fields.length == 0)
             return fail("Unable to get object describe information");
         recordToInsert = cleanupObjectInformation(recordToInsert, data.fields);
-        return doInsertCallout(objectDescribe, recordToInsert, instanceUrl, sessionId, done, fail);
+        done(recordToInsert);
     })
     .fail(function (err) {
         fail(err);
     })
     .always(function () {
-        hideProcessing()
+        hideProcessing();
     });
 }
 
@@ -160,7 +157,7 @@ var insertObjectRecord = function (describeInfo, recordToInsert, instanceUrl, se
 * @param        {object}        recordToInsert      {Record to be cleaned}
 * @param        {object}        fieldInfo           {Describe field info}
 */
-var cleanupObjectInformation = function (recordToInsert, fieldInfo) {
+function cleanupObjectInformation(recordToInsert, fieldInfo) {
     for (var fIndex in fieldInfo) {
         var field = fieldInfo[fIndex];
         if (!field.updateable || !field.createable) {
@@ -181,7 +178,7 @@ var cleanupObjectInformation = function (recordToInsert, fieldInfo) {
 * @param        {function}      done            {Success callback after getting URL}
 * @param        {function}      fail            {Failure callback}
 */
-var doInsertCallout = function (objectDescribe, recordToInsert, instanceUrl, sessionId, done, fail) {
+function doInsertCallout(objectDescribe, recordToInsert, instanceUrl, sessionId, done, fail) {
     $.ajax({
         type: "POST",
         url: instanceUrl + "/services/data/" + SF_API_VERSION + "/sobjects/" + objectDescribe.name,
