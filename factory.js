@@ -8,6 +8,8 @@
 
 "use strict";
 
+var RECORD_KEY = "RECORD_KEY";
+
 /**
 * Method to get the URL for the current tab
 * @param        {function}      deferred  {Deferred object from previous async}
@@ -149,6 +151,83 @@ function getCookieValue(url, name, prop, deferred, done, fail) {
     } catch (exception) {
         deferred.reject(exception);
     }
+
+    return deferred.promise();
+}
+
+/**
+* Method to store the record data in Chrome Extension storage space
+* @param        {object}        recordToStore   {Record to store}
+* @param        {function}      deferred        {Deferred object from previous async}
+* @param        {function}      done            {Successful callback}
+* @param        {function}      fail            {Failure callback}
+*/
+function storeRecord(recordToStore, deferred, done, fail) {
+    
+    deferred = deferred || new $.Deferred(showProcessing());
+    done = done || function() {};
+    fail = fail || function() {};
+
+    deferred.done(function(data) {
+        done(data);
+    });
+
+    deferred.fail(function(err) {
+        fail(err);
+    });
+
+    deferred.always(function() {
+        hideProcessing();
+    });
+
+    chrome.storage.local.set(
+        { RECORD_KEY: recordToStore },
+        function() {
+            deferred.resolve(true);
+        }
+    );
+
+    return deferred.promise();
+}
+
+/**
+* Method to fetch the record data in Chrome Extension storage space
+* @param        {function}      deferred        {Deferred object from previous async}
+* @param        {function}      done            {Successful callback}
+* @param        {function}      fail            {Failure callback}
+*/
+function fetchRecord(deferred, done, fail) {
+    
+    deferred = deferred || new $.Deferred(showProcessing());
+    done = done || function() {};
+    fail = fail || function() {};
+
+    deferred.done(function(data) {
+        done(data);
+    });
+
+    deferred.fail(function(err) {
+        fail(err);
+    });
+
+    deferred.always(function() {
+        hideProcessing();
+    });
+
+    chrome.storage.local.get(
+        RECORD_KEY,
+        function(record) {
+            if (record) {
+                // Once the record has been found, clear the space
+                // ...so that the next record can be stored here
+                chrome.storage.local.remove(RECORD_KEY);
+                deferred.resolve(record);
+            }
+            else {
+                deferred.reject(null);
+            }
+        }
+    );
 
     return deferred.promise();
 }

@@ -18,5 +18,11 @@
         "run_at": "document_end"
     }],
 
-    "permissions": [ "cookies", "*://*.salesforce.com/*", "*://*.force.com/*", "tabs" ]
+    "permissions": [
+        "cookies",
+        "*://*.salesforce.com/*",
+        "*://*.force.com/*",
+        "tabs",
+        "storage"
+    ]
 }

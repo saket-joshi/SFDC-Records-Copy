@@ -63,7 +63,7 @@ function selectSourceRecord() {
                     currentSessionId,
                     function (data) {
                         recordToInsert = data;
-                        console.log(recordToInsert);
+                        storeRecord(recordToInsert, null, null, null);
                     },
                     function (err) {
                         console.error(err);
@@ -79,4 +79,8 @@ function selectSourceRecord() {
         }
     );
     // Store the record in extension storage for further use
+}
+
+function cloneDestination() {
+    fetchRecord(null, function(record) { console.log(record) }, null);
 }
