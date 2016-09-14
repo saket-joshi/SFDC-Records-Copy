@@ -9,6 +9,7 @@
 "use strict";
 
 var RECORD_KEY = "RECORD_KEY";
+var OBJECT_API_NAME = "OBJECT_API_NAME";
 
 /**
 * Method to get the URL for the current tab
@@ -158,11 +159,12 @@ function getCookieValue(url, name, prop, deferred, done, fail) {
 /**
 * Method to store the record data in Chrome Extension storage space
 * @param        {object}        recordToStore   {Record to store}
+* @param        {string}        apiName         {API name of object so as to use it to insert in destn org}
 * @param        {function}      deferred        {Deferred object from previous async}
 * @param        {function}      done            {Successful callback}
 * @param        {function}      fail            {Failure callback}
 */
-function storeRecord(recordToStore, deferred, done, fail) {
+function storeRecord(recordToStore, apiName, deferred, done, fail) {
     
     deferred = deferred || new $.Deferred(showProcessing());
     done = done || function() {};
@@ -181,7 +183,10 @@ function storeRecord(recordToStore, deferred, done, fail) {
     });
 
     chrome.storage.local.set(
-        { RECORD_KEY: recordToStore },
+        {
+            RECORD_KEY: recordToStore,
+            OBJECT_API_NAME: apiName
+        },
         function() {
             deferred.resolve(true);
         }
@@ -215,12 +220,19 @@ function fetchRecord(deferred, done, fail) {
     });
 
     chrome.storage.local.get(
-        RECORD_KEY,
+        [
+            RECORD_KEY,
+            OBJECT_API_NAME
+        ],
         function(record) {
+            console.log(record);
             if (record) {
                 // Once the record has been found, clear the space
                 // ...so that the next record can be stored here
-                chrome.storage.local.remove(RECORD_KEY);
+                chrome.storage.local.remove([
+                    RECORD_KEY,
+                    OBJECT_API_NAME
+                ]);
                 deferred.resolve(record);
             }
             else {

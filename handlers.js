@@ -14,6 +14,7 @@
 */
 var currentRecord;
 var recordToInsert;
+var objectApiName;
 
 /**
 * Method to select the current record as the source record
@@ -63,7 +64,7 @@ function selectSourceRecord() {
                     currentSessionId,
                     function (data) {
                         recordToInsert = data;
-                        storeRecord(recordToInsert, null, null, null);
+                        storeRecord(recordToInsert, describeInfo[keyPrefix].name, null, null, null);
                     },
                     function (err) {
                         console.error(err);
@@ -82,5 +83,33 @@ function selectSourceRecord() {
 }
 
 function cloneDestination() {
-    fetchRecord(null, function(record) { console.log(record) }, null);
+    var recordToInsert;
+    var apiName;
+
+    fetchRecord(
+        null,
+        function(record) {
+            recordToInsert = record.RECORD_KEY;
+            apiName = record["OBJECT_API_NAME"];
+
+            delete recordToInsert["recordTypeId"];
+        },
+        null
+    )
+    .done(function () {
+        doInsertCallout(
+            {name: apiName},
+            recordToInsert,
+            currentInstanceUrl,
+            currentSessionId,
+            function (data) {
+                console.log("inserted");
+                console.log(data);
+            },
+            function (err) {
+                console.log(err);
+            }
+        );
+    });
+    
 }
