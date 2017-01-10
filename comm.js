@@ -9,6 +9,19 @@
 
 var SF_API_VERSION = "v35.0";
 
+function getAllObjectInformation(instanceObj, success, failure) {
+    success = success || function() {};
+    failure = failure || function() {};
+
+    return $.ajax({
+        type: "GET",
+        url: instanceObj.getProp["instanceUrl"],
+        headers: {
+            "Authorization": "OAuth " + instanceObj.getProp["sessionId"]
+        }
+    }).then(success, failure);
+}
+
 /**
 * Method to get all objects information in the org
 * To be used in the beginning of the extension to form the map
