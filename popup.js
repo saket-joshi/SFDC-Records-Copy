@@ -7,10 +7,28 @@
 
 "use strict";
 
+
+$(function() {
+    (function () {
+        var instanceOne = new Instance();
+        instanceOne.setProp(KEYWORD_INSTANCE_URL, "https://na30.salesforce.com");
+        instanceOne.setProp(KEYWORD_SESSION_ID, "00D36000000ueT9!ARgAQHT1b2tAC5skn4tAo1SW3WzTuq7ILA7kLduPpoP8KZ9bsFYWaK7cIfpmSmkHki3AKbpNwdmoqVnIEK2kxuWu_oGCht9v");
+
+        // Get all the object information map in instance one
+        getAllObjectInformation(instanceOne).then(
+            // On successful response, insert this map in the instance one object
+            function (data) {
+                instanceOne.setProp(KEYWORD_OBJECTS_MAP, data);
+            }, function (error) {
+                console.error(error);
+            });
+    }());
+});
+
 /**
 * Declaring these variables in a global context so that they can be accessible
 * from other files as well
-*/
+*   ////////////////
 var currentTabUrl;
 var currentInstanceUrl;
 var currentSessionId;
@@ -18,7 +36,7 @@ var describeInfo;
 
 /**
 * Method to initialize the event handlers
-*/
+*    ////////////////
 var initializeEventHandlers = function () {
     // Find all the elements with the data-event attributes
     // Get the type of event handlers
@@ -40,7 +58,8 @@ var initializeEventHandlers = function () {
 
 /**
 * This is the main logic that needs to be executed on opening the extension
-*/
+*   ////////////////
+
 $(function() {
     // First check if this is a valid salesforce tab to clone the record
     (function() {

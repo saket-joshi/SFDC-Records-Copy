@@ -2,73 +2,101 @@
 * JS wrapper for performing RESTful callouts to Salesforce
 *
 * @author       Saket Joshi (https://github.com/saket-joshi)
-* @version      1.1
+* @version      2.0
 */
 
 "use strict";
 
-var SF_API_VERSION = "v35.0";
+/**
+* Reusable function for all AJAX requests
+*
+* @help     ajaxParams      Object
+*   AJAX_PARAM_URL          String                  URL of the AJAX request
+*   AJAX_PARAM_METHOD       String                  Type of the AJAX request
+*   AJAX_PARAM_HEADERS      Object (key => value)   Headers to be sent
+*   AJAX_PARAM_BODY         JSON String             JSON Body for POST requests
+*   AJAX_PARAM_QUERY        Object (key => value)   Query string params for GET requests
+*
+* @note Method returns the AJAX object directly for multiple AJAX chaining
+*/
+function doAjax(ajaxParams, isShowProcess) {
+    isShowProcess = isShowProcess || false; 
 
-function getAllObjectInformation(instanceObj, success, failure) {
-    success = success || function() {};
-    failure = failure || function() {};
+    if (isShowProcess) {
+        showProcessing();
+    }
 
-    return $.ajax({
-        type: "GET",
-        url: instanceObj.getProp["instanceUrl"],
-        headers: {
-            "Authorization": "OAuth " + instanceObj.getProp["sessionId"]
+    // Form the final URL for GET type of requests
+    var finalUrl = ajaxParams["AJAX_PARAM_URL"];
+    if (ajaxParams["AJAX_PARAM_QUERY"]) {
+        finalUrl += "?";
+        for (var key in ajaxParams["AJAX_PARAM_QUERY"]) {
+            finalUrl += key + "=" + ajaxParams["AJAX_PARAM_QUERY"][key] + "&";
         }
-    }).then(success, failure);
+
+        // Remove the trailing '&'
+        // I like this function "slice" yum yum...
+        finalUrl.slice(0, -1);
+    }
+
+    // Perform the AJAX request and return
+    return $.ajax({
+        type: ajaxParams["AJAX_PARAM_METHOD"],
+        url: finalUrl,
+        headers: ajaxParams["AJAX_PARAM_HEADERS"],
+        data: ajaxParams["AJAX_PARAM_BODY"]
+    }).always(function () {
+        // Disable the processing if it is being shown
+        if (isShowProcess) {
+            hideProcessing();
+        }
+    });
 }
 
 /**
 * Method to get all objects information in the org
 * To be used in the beginning of the extension to form the map
 * of object key prefix and the API name
-*
-* @param        {string}        instanceUrl {URL Salesforce instance}
-* @param        {string}        sessionId   {Session ID for the Salesforce instance}
-* @param        {function}      done        {Success callback after getting URL}
-* @param        {function}      fail        {Failure callback}
+* 
+* @note Method returns the AJAX object directly for multiple AJAX chaining
+* @param        {Instance}        instanceObj    {Object storing information for this SFDC instance}
 */
-function getAllObjectInformation(instanceUrl, sessionId, deferred, done, fail) {
-    showProcessing();
-    
-    done = done || function () {};
-    fail = fail || function () {};
-
-    $.ajax({
-        type: "GET",
-        url: instanceUrl + "/services/data/" + SF_API_VERSION + "/sobjects",
-        headers: {
-            "Authorization": "OAuth " + sessionId
+function getAllObjectInformation(instanceObj) {
+    // Form the AJAX request params
+    var ajaxParams = {
+        AJAX_PARAM_URL: instanceObj.getProp(KEYWORD_INSTANCE_URL) + SF_ENDPOINT_SOBJECTS,
+        AJAX_PARAM_METHOD: CALLOUT_TYPE_GET,
+        AJAX_PARAM_HEADERS: {
+            "Authorization": HEADER_KEYWORD_OAUTH + instanceObj.getProp(KEYWORD_SESSION_ID)
         }
-    })
-    .done(function (data) {
-        var response = {};
+    };
 
-        if (!data || !data.sobjects)
-            done();
+    // Perform the callout and post-processing
+    return doAjax(ajaxParams)
+        .then(function (data) {
+            // Success response
+            var response = {};
 
-        for (var key in data.sobjects) {
-            var objectInfo = data.sobjects[key];
+            if (!data || !data.sobjects) {
+                return;
+            }
 
-            response[objectInfo.keyPrefix] = {
-                name: objectInfo.name,
-                isCustomSetting: objectInfo.customSetting,
-                recordUrl: objectInfo.urls.rowTemplate
-            };
-        }
+            // Form the object information map for this instance
+            for (var key in data.sobjects) {
+                var objectInfo = data.sobjects[key];
 
-        done(response);
-    })
-    .fail(function (err) {
-        fail(err);
-    })
-    .always(function () {
-        hideProcessing();
-    });
+                response[objectInfo.keyPrefix] = {
+                    name: objectInfo.name,
+                    isCustomSetting: objectInfo.customSetting,
+                    recordUrl: objectInfo.urls.rowTemplate
+                };
+            }
+
+            return response;
+        }, function (error) {
+            console.error(error);
+            showMessage(MESSAGE_TYPE.ERROR, JSON.stringify(error));
+        });
 }
 
 /**

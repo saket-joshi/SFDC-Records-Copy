@@ -8,16 +8,6 @@
 "use strict";
 
 /**
-* Message types wrapper
-*/
-var MESSAGE_TYPE = {
-    SUCCESS: "alert-success",
-    INFO: "alert-info",
-    WARNING: "alert-warning",
-    ERROR: "alert-danger"
-};
-
-/**
 * Method to show the processing loader
 */
 function showProcessing() {
