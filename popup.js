@@ -14,14 +14,18 @@ $(function() {
         instanceOne.setProp(KEYWORD_INSTANCE_URL, "https://na30.salesforce.com");
         instanceOne.setProp(KEYWORD_SESSION_ID, "00D36000000ueT9!ARgAQHT1b2tAC5skn4tAo1SW3WzTuq7ILA7kLduPpoP8KZ9bsFYWaK7cIfpmSmkHki3AKbpNwdmoqVnIEK2kxuWu_oGCht9v");
 
-        // Get all the object information map in instance one
-        getAllObjectInformation(instanceOne).then(
+        // Get the current tab URL
+        getCurrentTabUrl().then(function (tabUrl) {
+            console.log(tabUrl);
+            // Get all the object information map in instance one
+            getAllObjectInformation(instanceOne).then(
             // On successful response, insert this map in the instance one object
             function (data) {
                 instanceOne.setProp(KEYWORD_OBJECTS_MAP, data);
             }, function (error) {
                 console.error(error);
-            });
+            })
+        });
     }());
 });
 

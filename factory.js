@@ -3,7 +3,7 @@
 * within the browser tabs
 * 
 * @author       Saket Joshi (https://github.com/saket-joshi)
-* @version      1.2
+* @version      2.0
 */
 
 "use strict";
@@ -12,36 +12,16 @@ var RECORD_KEY = "RECORD_KEY";
 var OBJECT_API_NAME = "OBJECT_API_NAME";
 
 /**
-* Method to get the URL for the current tab
-* @param        {function}      deferred  {Deferred object from previous async}
-* @param        {function}      done      {Success callback after getting URL}
-* @param        {function}      fail      {Failure callback}
+* Chrome API method to get the current tab URL
+*
+* @note     Method returns deferred promise for further chaining
 */
-function getCurrentTabUrl(deferred, done, fail) {
+function getCurrentTabUrl() {
+    var deferred = $.Deferred();
     var tabProperties = {
         active: true,
         currentWindow: true
     };
-
-    // Sanity check
-    deferred = deferred || new $.Deferred(showProcessing());
-    done = done || function () {};
-    fail = fail || function () {};
-
-    // Callback for successful URL fetch
-    deferred.done(function (tab) {
-        done(tab.url);
-    });
-
-    // Callback for failed URL fetch
-    deferred.fail(function (err) {
-        fail(err);
-    })
-
-    // Hide the processing window
-    deferred.always(function () {
-        hideProcessing();
-    });
 
     try {
         chrome.tabs.query(tabProperties, function (tabs) {
@@ -51,11 +31,11 @@ function getCurrentTabUrl(deferred, done, fail) {
             }
 
             // Got the URLs, resolve the promise
-            deferred.resolve(response);
+            deferred.resolve(response.url);
         });
-    } catch (exception) {
+    } catch (error) {
         // Oops! Reject the promise
-        deferred.reject(exception)
+        deferred.reject(error)
     }
 
     return deferred.promise();
@@ -108,49 +88,38 @@ function getCurrentRecordId(url) {
 
 /**
 * Method to get a cookie value from the cookie store
-* @param        {string}        url         {URL for which the cookie needs to be retrieved}
 * @param        {string}        name        {Name of the cookie}
 * @param        {string}        prop        {Property to get}
-* @param        {function}      deferred    {Deferred object from previous async}
-* @param        {function}      done        {Success callback after getting URL}
-* @param        {function}      fail        {Failure callback}
+* @param        {string}        url         {URL for which the cookie needs to be retrieved}
 */
-function getCookieValue(url, name, prop, deferred, done, fail) {
-    var cookieProperties = {
+function getCookieValue(name, prop, url) {
+    var deferred = $.Deferred();
+
+    // If any of the values is not provided, there's no use of wasting time
+    if (!name || !prop || !url) {
+        deferred.reject();
+        return deferred.promise();
+    }
+
+    // Build the query properties
+    var queryProp = {
         url: url,
         name: name
     };
 
-    // Sanity check
-    // @TODO: Need to check if this param is required...
-    // ...if the function can be called from another async internally
-    // ...instead of calling it on the resolution of previous function
-    deferred = deferred || new $.Deferred(showProcessing());
-
-    done = done || function () {};
-    fail = fail || function () {};
-    
-    deferred.done(function (value) {
-        done(value);
-    });
-
-    deferred.fail(function (err) {
-        fail(err);
-    });
-
-    deferred.always(function () {
-        hideProcessing();
-    });
-
     try {
+        // Fetch the cookie from Chrome cookie store
         chrome.cookies.get(cookieProperties, function(cookie) {
             if (cookie) {
                 deferred.resolve(cookie[prop]);
             }
+
+            // If cookie not found then reject the promise
+            // ...instead of returning a success with null value
             deferred.reject(null);
         });
-    } catch (exception) {
-        deferred.reject(exception);
+    } catch (error) {
+        deferred.reject(error);
     }
 
     return deferred.promise();
